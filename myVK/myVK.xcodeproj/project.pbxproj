@@ -17,6 +17,7 @@
 		1075E738225205DE0018FF43 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1075E737225205DE0018FF43 /* LoginViewController.swift */; };
 		1075E73F2252A7310018FF43 /* CustomSegueLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1075E73E2252A7310018FF43 /* CustomSegueLogin.swift */; };
 		107F8B8A225D3EBF005AACAE /* CharControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 107F8B89225D3EBF005AACAE /* CharControl.swift */; };
+		108CEAE5228FFA340089C587 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 108CEAE4228FFA340089C587 /* Session.swift */; };
 		10902D172253448300C19782 /* FriendsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10902D162253448300C19782 /* FriendsViewCell.swift */; };
 		10902D1B225345C100C19782 /* FriendsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10902D1A225345C100C19782 /* FriendsModel.swift */; };
 		10902D1D2253472400C19782 /* FriendsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10902D1C2253472400C19782 /* FriendsController.swift */; };
@@ -44,6 +45,7 @@
 		1075E737225205DE0018FF43 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		1075E73E2252A7310018FF43 /* CustomSegueLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSegueLogin.swift; sourceTree = "<group>"; };
 		107F8B89225D3EBF005AACAE /* CharControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharControl.swift; sourceTree = "<group>"; };
+		108CEAE4228FFA340089C587 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		10902D162253448300C19782 /* FriendsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsViewCell.swift; sourceTree = "<group>"; };
 		10902D1A225345C100C19782 /* FriendsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsModel.swift; sourceTree = "<group>"; };
 		10902D1C2253472400C19782 /* FriendsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsController.swift; sourceTree = "<group>"; };
@@ -159,6 +161,7 @@
 			children = (
 				10902D1A225345C100C19782 /* FriendsModel.swift */,
 				101E216722627CBA0096FBC2 /* Group.swift */,
+				108CEAE4228FFA340089C587 /* Session.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -458,6 +461,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				108CEAE5228FFA340089C587 /* Session.swift in Sources */,
 				10CC77A42263586A0028DE58 /* UserGroupsController.swift in Sources */,
 				1075E738225205DE0018FF43 /* LoginViewController.swift in Sources */,
 				10CC77A62263587E0028DE58 /* UserGroupsCell.swift in Sources */,
