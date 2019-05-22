@@ -10,8 +10,8 @@ import Foundation
 
 class Session {
     
-    var token: String?
-    var id: Int?
+    var token: String = ""
+    var id: String = ""
     
     public static var shared = Session()
     
