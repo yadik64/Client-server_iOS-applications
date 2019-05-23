@@ -28,6 +28,8 @@ class FriendsController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        NetworkService.loadingData(for: .friends)
+        
         setupSearchController()
         sortFriendsAlphabetically()
     }
@@ -144,6 +146,7 @@ extension FriendsController: UITableViewDataSource {
 extension FriendsController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
-        filterContentForSearchText(searchText: searchController.searchBar.text!)
+        //filterContentForSearchText(searchText: searchController.searchBar.text!)
+        NetworkService.groupSearch(by: searchController.searchBar.text!)
     }
 }
