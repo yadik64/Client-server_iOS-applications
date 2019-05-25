@@ -9,14 +9,18 @@
 import UIKit
 
 class PhotoViewerController: UIViewController  {
-
-    var friendFoto: [String]?
+    
+    var friendFoto: [PhotoItem]?
     var startFotoIndex = 0
     var start = true
     
     @IBOutlet weak var collectionView: UICollectionView!
     
-
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+    }
+    
 }
 
 extension PhotoViewerController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
@@ -37,10 +41,10 @@ extension PhotoViewerController: UICollectionViewDataSource, UICollectionViewDel
             collectionView.scrollToItem(at: IndexPath(item: startFotoIndex, section: 0), at: UICollectionView.ScrollPosition.centeredHorizontally, animated: false)
             start = false
         }
-
-        let photo = UIImage(named: friendFoto![indexPath.row])
-        cell.photoImage.image = photo
-
+        let lastIndex = (friendFoto?[indexPath.row].sizes.count)! - 1
+        guard let url = friendFoto?[indexPath.row].sizes[lastIndex].url else { return cell }
+        cell.photoImage.downloadedFrom(link: url)
+        
         return cell
     }
     

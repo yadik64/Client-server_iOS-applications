@@ -8,80 +8,116 @@
 
 import UIKit
 
-class UserGroupsController: UIViewController, AllGroupsControllerDelegate, GroupPageControllerDelegate {
-
+class UserGroupsController: UIViewController {
+    
     @IBOutlet weak var tableView: UITableView!
+    
+    let searchController = UISearchController(searchResultsController: nil)
+    var userGroupsArray = [GroupsItem]()
+    
+    var localFilterGroupsArray = [GroupsItem]()
+    var globalFilterGroupsArray = [SearchItems]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NetworkService.loadingData(for: .groups)
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-        
-        tableView.reloadData()
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-        switch segue.identifier {
-        case "AllGroupsSegue":
-            let destinationVC = segue.destination as! AllGroupsController
-            destinationVC.delegate = self
-        case "ViewPageGroupSegue":
-            let destinationVC = segue.destination as! GroupPageController
-            guard let indexPath = tableView.indexPathForSelectedRow else { break }
-            destinationVC.group = Group.userGroupsArray[indexPath.row]
-            destinationVC.delegate = self
-        default:
-            break
+        DispatchQueue.main.async {
+            GroupsService.loadingGroupData { (array) in
+                self.userGroupsArray = array
+                self.tableView.reloadData()
+                self.setupSearchController()
+            }
         }
         
     }
     
-    func addGroup(group: Group) {}
+    //TODO: - SearchController Methods
     
-    func deleteGroup(group: Group) {
-        guard let index = Group.userGroupsArray.firstIndex(of: group) else { return }
-        Group.userGroupsArray.remove(at: index)
-        self.tableView.reloadData()
+    private func setupSearchController() {
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        navigationItem.searchController = searchController
+        searchController.searchBar.placeholder = "Поиск друга"
+        definesPresentationContext = true
     }
     
-    func addToTable(group: Group) {
-        Group.userGroupsArray.append(group)
-        self.tableView.reloadData()
+    private func searchBarIsEmpty() -> Bool {
+        return searchController.searchBar.text?.isEmpty ?? true
     }
     
-     
+    private func isFiltered() -> Bool {
+        return searchController.isActive && !searchBarIsEmpty()
+    }
+    
+    private func filterContentForSearchText(searchText: String) {
+
+        
+        localFilterGroupsArray = userGroupsArray.filter{
+            guard let name = $0.name else { return false }
+            return name.lowercased().contains(searchText.lowercased())
+        }
+        NetworkService.groupSearch(by: searchText) { (resultArray) in
+            self.globalFilterGroupsArray = resultArray
+        }
+        tableView.reloadData()
+    }
+    
+    
 }
 
 extension UserGroupsController: UITableViewDataSource {
     
+    func numberOfSections(in tableView: UITableView) -> Int {
+        let numberOfSections = isFiltered() ? 2 : 1
+        return numberOfSections
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return Group.userGroupsArray.count
+        
+        switch section {
+        case 0:
+            let numberOfRows = isFiltered() ? localFilterGroupsArray.count : userGroupsArray.count
+            return numberOfRows
+        default:
+            let numberOfRows = isFiltered() ? globalFilterGroupsArray.count : 0
+            return numberOfRows
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "UserGroupsCell", for: indexPath) as! UserGroupsCell
-        cell.iconGroup.image = UIImage(named: Group.userGroupsArray[indexPath.row].nameIcon)
-        cell.nameGroup.text = Group.userGroupsArray[indexPath.row].nameGroup
+        
+        switch indexPath.section {
+        case 0:
+            let url = isFiltered() ? localFilterGroupsArray[indexPath.row].photo100 : userGroupsArray[indexPath.row].photo100
+            let name = isFiltered() ? localFilterGroupsArray[indexPath.row].name : userGroupsArray[indexPath.row].name
+            
+            cell.iconGroup.downloadedFrom(link: url)
+            cell.nameGroup.text = name
+        default:
+            let url = globalFilterGroupsArray[indexPath.row].photo100 
+            let name = globalFilterGroupsArray[indexPath.row].name
+            
+            cell.iconGroup.downloadedFrom(link: url!)
+            cell.nameGroup.text = name
+        }
+        
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch section {
+        case 0:
+            return ""
+        default:
+            return "Глобальный поиск:"
+        }
     }
 }
 
-extension UserGroupsController: UITableViewDelegate {
+extension UserGroupsController: UISearchResultsUpdating {
     
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            Group.userGroupsArray.remove(at: indexPath.row)
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-            tableView.reloadData()
-        }
+    func updateSearchResults(for searchController: UISearchController) {
+        filterContentForSearchText(searchText: searchController.searchBar.text!)
     }
 }

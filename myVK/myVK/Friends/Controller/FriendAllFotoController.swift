@@ -12,14 +12,21 @@ class FriendAllFotoController: UIViewController {
     
     @IBOutlet weak var collectionView: UICollectionView!
     
+    var userId: Int?
+    var photoData = [PhotoItem]()
     var friendData: FriendsModel?
     let segueIdentifier = "PhotoViewerSegue"
-    let networkService = NetworkService()
+    let photosService = PhotosService()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NetworkService.loadingData(for: .friendPhotos, userId: "1")
+        guard let id = userId else { return }
+        print(id)
+        photosService.loadPhotosData(userId: id) { (responseArray) in
+            self.photoData = responseArray.items
+            self.collectionView.reloadData()
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -30,27 +37,26 @@ class FriendAllFotoController: UIViewController {
         let photoViewerController = segue.destination as! PhotoViewerController
         
         photoViewerController.startFotoIndex = indexPath[0].row
-        photoViewerController.friendFoto = friendData?.fotoAlbom
+        photoViewerController.friendFoto = photoData
     }
-
+    
 }
 
 extension FriendAllFotoController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        guard let number = friendData?.fotoAlbom?.count else { return 1}
-        return number
+        return photoData.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cellIdetifire = "FriendAllFotoCell"
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdetifire, for: indexPath) as! FriendAllFotoCell
-        
-        if let fotoArray = friendData?.fotoAlbom {
-            let foto = fotoArray[indexPath.row]
-            cell.fotoImage.image = UIImage(named: foto)
+        let photoArray = photoData[indexPath.row].sizes
+        if !photoArray.isEmpty {
+            let url = photoArray[0].url
+            cell.fotoImage.downloadedFrom(link: url)
         } else {
             cell.fotoImage.image = UIImage(named: "nophoto")
         }

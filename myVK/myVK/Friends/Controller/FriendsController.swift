@@ -15,47 +15,47 @@ class FriendsController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var charControl: CharControl!
     
-//TODO: - Propertis
+    //TODO: - Propertis
     
     let searchController = UISearchController(searchResultsController: nil)
     let cellIdentifire = "FriendsViewCell"
     let segueIdentifire = "FotoAlbomSegue"
-    var sectionName = [String]()
-    var friendsDictionary = [String: [FriendsModel]]()
+    let numberOfSectionImportantFrieds = 1
     
-// FriendsController Methods
+    var filterFriendsArray = [FriendsItem]()
+    
+    let friendsModelController = FriendsModelController()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NetworkService.loadingData(for: .friends)
+        let friendsDataReceivedNotifications = Notification.Name(rawValue: "friendsDataReceived")
+        NotificationCenter.default.addObserver(self, selector: #selector(dataReceived), name: friendsDataReceivedNotifications, object: nil)
         
         setupSearchController()
-        sortFriendsAlphabetically()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    @objc func dataReceived() {
+        charControl.sectionName = friendsModelController.sectionName
+        charControl.setupStackView()
+        
+        tableView.reloadData()
     }
     
     @IBAction func pressCharControl(_ sender: CharControl) {
         guard let char = sender.selectedChar else { return }
-        guard let sectionIndex = FriendsModel.sectionName.firstIndex(of: char.uppercased()) else { return }
-        let indexPath = IndexPath(row: 0, section: sectionIndex)
+        print(char)
+        guard let sectionIndex = friendsModelController.sectionName.firstIndex(of: char.uppercased()) else { return }
+        let indexPath = IndexPath(row: 0, section: sectionIndex + 1)
         tableView.scrollToRow(at: indexPath, at: .top, animated: true)
     }
     
-    private func sortFriendsAlphabetically() {
-        
-        for name in FriendsModel.userFriendsArray {
-            let key = name.friendStartChar
-            if friendsDictionary[key] == nil {
-                sectionName.append(key)
-                friendsDictionary[key] = [name]
-            } else {
-                friendsDictionary[key]?.append(name)
-            }
-        }
-        sectionName.sort()
-    }
     
-//TODO: - SearchController Methods
+    //TODO: - SearchController Methods
     
     private func setupSearchController() {
         searchController.searchResultsUpdater = self
@@ -74,13 +74,18 @@ class FriendsController: UIViewController {
     }
     
     private func filterContentForSearchText(searchText: String) {
-        FriendsModel.filterFriendsArray = FriendsModel.userFriendsArray.filter{ $0.nameFriend.lowercased().contains(searchText.lowercased())}
         
-        charControl.isHidden = true
+        let allFriends = friendsModelController.importantFriedsArray + friendsModelController.friendsAllButImportant
+        filterFriendsArray = allFriends.filter{
+            guard let lastName = $0.lastName else { return false}
+            return lastName.lowercased().contains(searchText.lowercased())
+        }
+        
+        charControl.isHidden = isFiltered()
         tableView.reloadData()
     }
     
-//TODO: - Data transmission Methods
+    //TODO: - Data transmission Methods
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
@@ -88,15 +93,21 @@ class FriendsController: UIViewController {
         guard let indexPath = tableView.indexPathForSelectedRow else { return }
         
         let friendAllFotoController = segue.destination as! FriendAllFotoController
-        let key = sectionName[indexPath.section]
-        guard let friends = friendsDictionary[key] else { return }
-        let friendData = isFiltered() ?
-            FriendsModel.filterFriendsArray[indexPath.row] :
-            friends[indexPath.row]
         
-        friendAllFotoController.friendData = friendData
+        if isFiltered() {
+            friendAllFotoController.userId = filterFriendsArray[indexPath.row].id
+        } else {
+            switch indexPath.section {
+            case 0:
+                friendAllFotoController.userId = friendsModelController.importantFriedsArray[indexPath.row].id
+            default:
+                let key = friendsModelController.sectionName[indexPath.section - 1]
+                friendAllFotoController.userId = friendsModelController.friendsDictionary[key]?[indexPath.row].id
+            }
+        }
+        
     }
-
+    
 }
 
 //TODO: - Extensions
@@ -104,41 +115,78 @@ class FriendsController: UIViewController {
 extension FriendsController: UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        guard !isFiltered() else { return 1 }
-        return sectionName.count
+        
+        if isFiltered() {
+            return 1
+        } else {
+            return friendsModelController.sectionName.count + numberOfSectionImportantFrieds
+        }
+        
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard !isFiltered() else { return FriendsModel.filterFriendsArray.count }
         
-        let key = sectionName[section]
-        guard let returnData = friendsDictionary[key] else { return 0 }
-        return returnData.count
+        if isFiltered() {
+            return filterFriendsArray.count
+        } else {
+            switch section {
+            case 0:
+                return friendsModelController.importantFriedsArray.count
+            default:
+                guard let numberOfRows = friendsModelController.friendsDictionary[friendsModelController.sectionName[section - numberOfSectionImportantFrieds]]?.count else { break }
+                return numberOfRows
+            }
+            return 0
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifire, for: indexPath) as! FriendsViewCell
         
-        let key = sectionName[indexPath.section]
-        guard let friend = friendsDictionary[key] else { return cell }
+        var urlString = ""
+        var name = ""
         
-        let avatar = isFiltered() ?
-            UIImage(named: FriendsModel.filterFriendsArray[indexPath.row].fotoFriend) :
-            UIImage(named: friend[indexPath.row].fotoFriend)
-        let name = isFiltered() ?
-            FriendsModel.filterFriendsArray[indexPath.row].nameFriend :
-            friend[indexPath.row].nameFriend
+        if isFiltered() {
+            let friend = filterFriendsArray[indexPath.row]
+            
+            urlString = friend.photo100 ?? ""
+            name = (friend.firstName ?? " ") + " " + (friend.lastName ?? " ")
+        } else {
+            switch indexPath.section {
+            case 0:
+                let friend = friendsModelController.importantFriedsArray[indexPath.row]
+                
+                urlString = friend.photo100 ?? ""
+                name = (friend.firstName ?? " ") + " " + (friend.lastName ?? " ")
+                
+            default:
+                let key = friendsModelController.sectionName[indexPath.section - numberOfSectionImportantFrieds]
+                guard let friend = friendsModelController.friendsDictionary[key]?[indexPath.row] else { break }
+                
+                urlString = friend.photo100 ?? ""
+                name = (friend.firstName ?? " ") + " " + (friend.lastName ?? " ")
+            }
+        }
         
-        cell.avatarView.image = avatar
+        cell.avatarView.downloadedFrom(link: urlString)
         cell.nameFriendLabel.text = name
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        guard !isFiltered() else { return "Найденно:"}
-        return sectionName[section]
+        
+        if isFiltered() {
+            return "Найденно:"
+        } else {
+            switch section {
+            case 0:
+                return "Важные друзья"
+            default:
+                return friendsModelController.sectionName[section - numberOfSectionImportantFrieds]
+            }
+        }
     }
     
 }
@@ -146,7 +194,6 @@ extension FriendsController: UITableViewDataSource {
 extension FriendsController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
-        //filterContentForSearchText(searchText: searchController.searchBar.text!)
-        NetworkService.groupSearch(by: searchController.searchBar.text!)
+        filterContentForSearchText(searchText: searchController.searchBar.text!)
     }
 }

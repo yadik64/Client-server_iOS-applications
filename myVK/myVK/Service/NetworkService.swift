@@ -59,17 +59,24 @@ class NetworkService {
         return parameters
     }
     
-    public static func loadingData(for requestPath: URLRequestPath, userId: String = session.id) {
+    public static func loadingData<T: Codable>(for requestPath: URLRequestPath, userId: String = session.id, completion: @escaping(T) -> Void) {
         let parameters = makeParameters(from: requestPath, userId: userId)
         guard let url = URL(string: baseURL + requestPath.rawValue) else { return }
-        AF.request(url, method: .get, parameters: parameters).validate().responseJSON { (response) in
-            guard let json = response.value else { return }
-            print(json)
+        AF.request(url, method: .get, parameters: parameters).validate().responseData { (response) in
+            guard let data = response.value else { return }
+            do {
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                let result = try decoder.decode(T.self, from: data)
+                completion(result)
+            } catch {
+                print(error.localizedDescription)
+            }
         }
-        
     }
     
-    public static func groupSearch(by text: String) {
+    public static func groupSearch(by text: String, complition: @escaping([SearchItems]) -> Void) {
+        guard text != "" else { return }
         let path = "/method/groups.search"
         let parameters: Parameters = [
             "q": text,
@@ -78,9 +85,20 @@ class NetworkService {
             "v": "5.95"
         ]
         
-        AF.request(baseURL + path , method: .get, parameters: parameters).validate().responseJSON { (response) in
-            guard let json = response.value else { return }
-            print(json)
+        AF.request(baseURL + path , method: .get, parameters: parameters).validate().response { (response) in
+            switch response.result {
+            case .success(let data):
+                guard let data = data else { return }
+                let decoder = JSONDecoder()
+                do {
+                    let result = try decoder.decode(GroupsSearchModel.self, from: data).response
+                    complition(result)
+                } catch {
+                    print(error.localizedDescription)
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
         }
     }
     

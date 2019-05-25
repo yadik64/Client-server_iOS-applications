@@ -11,4 +11,8 @@ import UIKit
 class FriendAllFotoCell: UICollectionViewCell {
     
     @IBOutlet weak var fotoImage: UIImageView!
+    
+    override func prepareForReuse() {
+        fotoImage.image = nil
+    }
 }

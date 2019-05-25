@@ -13,5 +13,8 @@ class UserGroupsCell: UITableViewCell {
     @IBOutlet weak var iconGroup: AvatarView!
     @IBOutlet weak var nameGroup: UILabel!
     
-
+    override func prepareForReuse() {
+        iconGroup.image = nil
+        nameGroup.text = nil
+    }
 }

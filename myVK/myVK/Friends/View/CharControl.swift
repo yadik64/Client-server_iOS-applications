@@ -18,6 +18,7 @@ class CharControl: UIControl {
     }
     var stackView: UIStackView!
     var buttonArray = [UIButton]()
+    var sectionName = [String]()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -31,11 +32,11 @@ class CharControl: UIControl {
         setupStackView()
     }
     
-    private func setupStackView() {
+    func setupStackView() {
         
         self.backgroundColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0).withAlphaComponent(0)
         
-        for char in FriendsModel.sectionName {
+        for char in sectionName {
             let button = UIButton(type: .system)
             button.setTitle(char.lowercased(), for: .normal)
             button.setTitleColor(#colorLiteral(red: 0.2980392157, green: 0.4588235294, blue: 0.6392156863, alpha: 1), for: .normal)
@@ -58,7 +59,7 @@ class CharControl: UIControl {
     
     private func updateSelectChar() {
         for (index, button) in buttonArray.enumerated() {
-            let char = FriendsModel.sectionName[index].lowercased()
+            let char = sectionName[index].lowercased()
             button.isSelected = char == selectedChar
         }
     }
