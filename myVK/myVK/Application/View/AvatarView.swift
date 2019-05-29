@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 class AvatarView: UIView {
     
@@ -36,19 +37,8 @@ class AvatarView: UIView {
 }
 
 extension AvatarView {
-    private func downloadedFrom(url: URL) {
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard
-                let data = data, error == nil,
-                let image = UIImage(data: data)
-                else { return }
-            DispatchQueue.main.async() {
-                self.image = image
-            }
-            }.resume()
-    }
     func downloadedFrom(link: String) {
         guard let url = URL(string: link) else { return }
-        downloadedFrom(url: url)
+        imageView.kf.setImage(with: url)
     }
 }

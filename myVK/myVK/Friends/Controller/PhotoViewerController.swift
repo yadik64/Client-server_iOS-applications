@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 class PhotoViewerController: UIViewController  {
     
@@ -41,9 +42,9 @@ extension PhotoViewerController: UICollectionViewDataSource, UICollectionViewDel
             collectionView.scrollToItem(at: IndexPath(item: startFotoIndex, section: 0), at: UICollectionView.ScrollPosition.centeredHorizontally, animated: false)
             start = false
         }
-        guard let url = friendFoto?[indexPath.row].maxSizePhotoUrl else { return cell }
-        print(url)
-        cell.photoImage.downloadedFrom(link: url)
+        guard let urlString = friendFoto?[indexPath.row].maxSizePhotoUrl,
+              let url = URL(string: urlString) else { return cell }
+        cell.photoImage.kf.setImage(with: url)
         
         return cell
     }

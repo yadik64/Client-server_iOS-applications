@@ -16,7 +16,6 @@
 		107F8B8A225D3EBF005AACAE /* CharControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 107F8B89225D3EBF005AACAE /* CharControl.swift */; };
 		1083D3E522972FDA001A269B /* FriendsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1083D3E422972FDA001A269B /* FriendsModel.swift */; };
 		1083D3E7229730B4001A269B /* FriendsModelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1083D3E6229730B4001A269B /* FriendsModelController.swift */; };
-		1083D3EA22973744001A269B /* ImageViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1083D3E922973744001A269B /* ImageViewExtensions.swift */; };
 		108CEAE5228FFA340089C587 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 108CEAE4228FFA340089C587 /* Session.swift */; };
 		10902D172253448300C19782 /* FriendsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10902D162253448300C19782 /* FriendsViewCell.swift */; };
 		10902D1D2253472400C19782 /* FriendsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10902D1C2253472400C19782 /* FriendsController.swift */; };
@@ -51,7 +50,6 @@
 		107F8B89225D3EBF005AACAE /* CharControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharControl.swift; sourceTree = "<group>"; };
 		1083D3E422972FDA001A269B /* FriendsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsModel.swift; sourceTree = "<group>"; };
 		1083D3E6229730B4001A269B /* FriendsModelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsModelController.swift; sourceTree = "<group>"; };
-		1083D3E922973744001A269B /* ImageViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewExtensions.swift; sourceTree = "<group>"; };
 		108CEAE4228FFA340089C587 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		10902D162253448300C19782 /* FriendsViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsViewCell.swift; sourceTree = "<group>"; };
 		10902D1C2253472400C19782 /* FriendsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsController.swift; sourceTree = "<group>"; };
@@ -134,7 +132,6 @@
 		1083D3E822973711001A269B /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				1083D3E922973744001A269B /* ImageViewExtensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -455,7 +452,6 @@
 				10CC77A62263587E0028DE58 /* UserGroupsCell.swift in Sources */,
 				10EDE75B22549472001536C3 /* AvatarView.swift in Sources */,
 				10902D1D2253472400C19782 /* FriendsController.swift in Sources */,
-				1083D3EA22973744001A269B /* ImageViewExtensions.swift in Sources */,
 				101E216822627CBA0096FBC2 /* Group.swift in Sources */,
 				10B7C92322997775003B397E /* GroupsService.swift in Sources */,
 				1083D3E7229730B4001A269B /* FriendsModelController.swift in Sources */,

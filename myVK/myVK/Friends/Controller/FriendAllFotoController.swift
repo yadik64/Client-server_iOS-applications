@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 class FriendAllFotoController: UIViewController {
     
@@ -53,10 +54,10 @@ extension FriendAllFotoController: UICollectionViewDataSource, UICollectionViewD
         
         let cellIdetifire = "FriendAllFotoCell"
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdetifire, for: indexPath) as! FriendAllFotoCell
-        let photoArray = photoData[indexPath.row].smallSizePhotoUrl
-        if !photoArray.isEmpty {
-            let url = photoArray
-            cell.fotoImage.downloadedFrom(link: url)
+        let urlString = photoData[indexPath.row].smallSizePhotoUrl
+        if urlString != "" {
+            guard let url = URL(string: urlString) else { return cell }
+            cell.fotoImage.kf.setImage(with: url)
         } else {
             cell.fotoImage.image = UIImage(named: "nophoto")
         }
