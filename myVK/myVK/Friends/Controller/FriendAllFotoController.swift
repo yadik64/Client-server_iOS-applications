@@ -53,9 +53,9 @@ extension FriendAllFotoController: UICollectionViewDataSource, UICollectionViewD
         
         let cellIdetifire = "FriendAllFotoCell"
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellIdetifire, for: indexPath) as! FriendAllFotoCell
-        let photoArray = photoData[indexPath.row].sizes
+        let photoArray = photoData[indexPath.row].smallSizePhotoUrl
         if !photoArray.isEmpty {
-            let url = photoArray[0].url
+            let url = photoArray
             cell.fotoImage.downloadedFrom(link: url)
         } else {
             cell.fotoImage.image = UIImage(named: "nophoto")

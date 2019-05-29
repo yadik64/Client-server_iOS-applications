@@ -41,8 +41,8 @@ extension PhotoViewerController: UICollectionViewDataSource, UICollectionViewDel
             collectionView.scrollToItem(at: IndexPath(item: startFotoIndex, section: 0), at: UICollectionView.ScrollPosition.centeredHorizontally, animated: false)
             start = false
         }
-        let lastIndex = (friendFoto?[indexPath.row].sizes.count)! - 1
-        guard let url = friendFoto?[indexPath.row].sizes[lastIndex].url else { return cell }
+        guard let url = friendFoto?[indexPath.row].maxSizePhotoUrl else { return cell }
+        print(url)
         cell.photoImage.downloadedFrom(link: url)
         
         return cell

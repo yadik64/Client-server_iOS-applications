@@ -7,41 +7,49 @@
 //
 
 import Foundation
+import RealmSwift
+import Realm
 
-struct PhotoModel: Codable {
+class PhotoModel: Decodable {
     let response: PhotoResponse
 }
 
-struct PhotoResponse: Codable {
-    let count: Int
+class PhotoResponse: Decodable {
     let items: [PhotoItem]
 }
 
-struct PhotoItem: Codable {
-    let id, albumId, ownerId: Int
-    let sizes: [PhotoSize]
-    let text: String
-    let date: Int
-    let lat, long: Double?
-    let postId: Int?
+@objcMembers class PhotoItem: Object, Decodable {
+    dynamic var id: Int = 0
+    dynamic var  maxSizePhotoUrl: String = ""
+    dynamic var  smallSizePhotoUrl: String = ""
+    
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case sizes
+    }
+    
+    enum SizesKeys: CodingKey {
+        case url
+    }
+    
+    required convenience init(from decoder: Decoder) throws {
+        self.init()
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(Int.self, forKey: .id)
+        var array = try container.nestedUnkeyedContainer(forKey: .sizes)
+        let sizesContainer = try array.nestedContainer(keyedBy: SizesKeys.self)
+        self.smallSizePhotoUrl = try sizesContainer.decode(String.self, forKey: .url)
+        while !array.isAtEnd {
+            let sizesContainer = try array.nestedContainer(keyedBy: SizesKeys.self)
+            self.maxSizePhotoUrl = try sizesContainer.decode(String.self, forKey: .url)
+        }
+    }
+    
+    convenience init(id: Int, maxPhoto: String, minPhoto: String) {
+        self.init()
+        self.id = id
+        self.maxSizePhotoUrl = maxPhoto
+        self.smallSizePhotoUrl = minPhoto
+    }
 }
-
-struct PhotoSize: Codable {
-    let type: TypeEnum
-    let url: String
-    let width, height: Int
-}
-
-enum TypeEnum: String, Codable {
-    case m = "m"
-    case o = "o"
-    case p = "p"
-    case q = "q"
-    case r = "r"
-    case s = "s"
-    case w = "w"
-    case x = "x"
-    case y = "y"
-    case z = "z"
-}
-

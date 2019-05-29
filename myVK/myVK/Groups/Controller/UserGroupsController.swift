@@ -53,8 +53,7 @@ class UserGroupsController: UIViewController {
 
         
         localFilterGroupsArray = userGroupsArray.filter{
-            guard let name = $0.name else { return false }
-            return name.lowercased().contains(searchText.lowercased())
+            return $0.name.lowercased().contains(searchText.lowercased())
         }
         NetworkService.groupSearch(by: searchText) { (resultArray) in
             self.globalFilterGroupsArray = resultArray

@@ -7,22 +7,23 @@
 //
 
 import Foundation
+import RealmSwift
+import Realm
 
-struct GroupsModel: Codable {
+class GroupsModel: Codable {
     let response: GroupsResponse
 }
 
-struct GroupsResponse: Codable {
+class GroupsResponse: Codable {
     var items: [GroupsItem]
 }
 
-struct GroupsItem: Codable {
-    let id: Int
-    let name: String?
-    let screenName: String?
-    let isClosed, isAdmin, isMember, isAdvertiser: Int?
-    let type: String?
-    let photo50, photo100, photo200: String
+@objcMembers class GroupsItem: Object, Codable {
+    dynamic var id = 0
+    dynamic var name = ""
+    dynamic var screenName  = ""
+    dynamic var type = ""
+    dynamic var photo100 = ""
     
 }
 

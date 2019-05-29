@@ -77,8 +77,7 @@ class FriendsController: UIViewController {
         
         let allFriends = friendsModelController.importantFriedsArray + friendsModelController.friendsAllButImportant
         filterFriendsArray = allFriends.filter{
-            guard let lastName = $0.lastName else { return false}
-            return lastName.lowercased().contains(searchText.lowercased())
+            return $0.lastName.lowercased().contains(searchText.lowercased())
         }
         
         charControl.isHidden = isFiltered()
@@ -151,21 +150,21 @@ extension FriendsController: UITableViewDataSource {
             let friend = filterFriendsArray[indexPath.row]
             
             urlString = friend.photo100 ?? ""
-            name = (friend.firstName ?? " ") + " " + (friend.lastName ?? " ")
+            name = friend.firstName + " " + friend.lastName
         } else {
             switch indexPath.section {
             case 0:
                 let friend = friendsModelController.importantFriedsArray[indexPath.row]
                 
                 urlString = friend.photo100 ?? ""
-                name = (friend.firstName ?? " ") + " " + (friend.lastName ?? " ")
+                name = friend.firstName  + " " + friend.lastName
                 
             default:
                 let key = friendsModelController.sectionName[indexPath.section - numberOfSectionImportantFrieds]
                 guard let friend = friendsModelController.friendsDictionary[key]?[indexPath.row] else { break }
                 
                 urlString = friend.photo100 ?? ""
-                name = (friend.firstName ?? " ") + " " + (friend.lastName ?? " ")
+                name = friend.firstName + " " + friend.lastName
             }
         }
         

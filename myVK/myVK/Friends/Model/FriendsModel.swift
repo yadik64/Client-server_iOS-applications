@@ -7,20 +7,31 @@
 //
 
 import Foundation
+import Realm
+import RealmSwift
 
 class FriendsModel: Codable {
     let response: FriendsResponse
 }
 
-struct FriendsResponse: Codable, Hashable {
+class FriendsResponse: Codable {
     let items: [FriendsItem]
 }
 
-struct FriendsItem: Codable,  Hashable {
-    let id: Int?
-    let firstName, lastName: String?
-    let isClosed, canAccessClosed: Bool?
-    let nickname: String?
-    let photo100: String?
-    let online: Int?
+@objcMembers class FriendsItem: Object, Codable {
+    
+    dynamic var id = 0
+    dynamic var firstName: String = ""
+    dynamic var lastName: String = ""
+    dynamic var photo100: String? = nil
+    dynamic var online: Int? = nil
+    
+    convenience init(id: Int, firsName: String, lastName: String, photo100: String?, online: Int ) {
+        self.init()
+        self.id = id
+        self.firstName = firsName
+        self.lastName = lastName
+        self.photo100 = photo100
+        self.online = online
+    }
 }

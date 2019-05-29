@@ -26,8 +26,7 @@ class FriendsModelController {
                 return returnArray
             }()
             self.friendsAllButImportant = friendsData.response.items.filter{!self.importantFriedsArray.contains($0)}.sorted{
-                guard let oneName = $0.lastName, let twoName = $1.lastName else { return false }
-                return oneName < twoName
+                return $0.lastName < $1.lastName
             }
             
             self.sortFriendsAlphabetically()
@@ -38,7 +37,7 @@ class FriendsModelController {
     private func sortFriendsAlphabetically() {
         
         for element in friendsAllButImportant {
-            guard let key = element.lastName?.first else { continue }
+            guard let key = element.lastName.first else { continue }
             if friendsDictionary[String(key)] == nil {
                 friendsDictionary[String(key)] = [element]
             } else {
