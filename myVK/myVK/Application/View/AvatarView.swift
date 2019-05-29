@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 class AvatarView: UIView {
     
@@ -32,5 +33,12 @@ class AvatarView: UIView {
         layer.shadowOffset = CGSize(width: 5, height: 5)
         layer.shadowOpacity = 0.6
         layer.shadowColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1).cgColor
+    }
+}
+
+extension AvatarView {
+    func downloadedFrom(link: String) {
+        guard let url = URL(string: link) else { return }
+        imageView.kf.setImage(with: url)
     }
 }
