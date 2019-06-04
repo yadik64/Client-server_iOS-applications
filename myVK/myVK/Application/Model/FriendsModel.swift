@@ -24,14 +24,16 @@ class FriendsResponse: Codable {
     dynamic var firstName: String = ""
     dynamic var lastName: String = ""
     dynamic var photo100: String? = nil
+    dynamic var isClosed: Bool?
     dynamic var online: Int? = nil
     
-    convenience init(id: Int, firsName: String, lastName: String, photo100: String?, online: Int ) {
+    convenience init(id: Int, firsName: String, lastName: String, photo100: String?, isClosed: Bool?, online: Int ) {
         self.init()
         self.id = id
         self.firstName = firsName
         self.lastName = lastName
         self.photo100 = photo100
+        self.isClosed = isClosed
         self.online = online
     }
 }

@@ -37,11 +37,11 @@ class PhotoResponse: Decodable {
         self.init()
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(Int.self, forKey: .id)
-        var array = try container.nestedUnkeyedContainer(forKey: .sizes)
-        let sizesContainer = try array.nestedContainer(keyedBy: SizesKeys.self)
+        var arraySizes = try container.nestedUnkeyedContainer(forKey: .sizes)
+        let sizesContainer = try arraySizes.nestedContainer(keyedBy: SizesKeys.self)
         self.smallSizePhotoUrl = try sizesContainer.decode(String.self, forKey: .url)
-        while !array.isAtEnd {
-            let sizesContainer = try array.nestedContainer(keyedBy: SizesKeys.self)
+        while !arraySizes.isAtEnd {
+            let sizesContainer = try arraySizes.nestedContainer(keyedBy: SizesKeys.self)
             self.maxSizePhotoUrl = try sizesContainer.decode(String.self, forKey: .url)
         }
     }

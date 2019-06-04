@@ -16,19 +16,24 @@ class UserGroupsController: UIViewController {
     var userGroupsArray = [GroupsItem]()
     
     var localFilterGroupsArray = [GroupsItem]()
-    var globalFilterGroupsArray = [SearchItems]()
+    var globalFilterGroupsArray = [GroupsItem]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         DispatchQueue.main.async {
-            GroupsService.loadingGroupData { (array) in
-                self.userGroupsArray = array
-                self.tableView.reloadData()
-                self.setupSearchController()
-            }
+            NetworkService.loadingData(for: .groups, completion: { (response: Result<GroupsModel, Error>) in
+                switch response {
+                case .success(let result):
+                    self.userGroupsArray = result.response.items
+                    self.tableView.reloadData()
+                    self.setupSearchController()
+                case .failure(let error):
+                    print(error)
+                }
+                
+            })
         }
-        
     }
     
     //TODO: - SearchController Methods
@@ -50,15 +55,20 @@ class UserGroupsController: UIViewController {
     }
     
     private func filterContentForSearchText(searchText: String) {
-
+        guard searchText != "" else { return }
         
         localFilterGroupsArray = userGroupsArray.filter{
             return $0.name.lowercased().contains(searchText.lowercased())
         }
-        NetworkService.groupSearch(by: searchText) { (resultArray) in
-            self.globalFilterGroupsArray = resultArray
+        NetworkService.groupSearch(by: searchText) { (response) in
+            switch response {
+            case .success(let result):
+                    self.globalFilterGroupsArray = result.response.items
+                    self.tableView.reloadData()
+            case .failure(let error):
+                print(error)
+            }
         }
-        tableView.reloadData()
     }
     
     
@@ -85,21 +95,16 @@ extension UserGroupsController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "UserGroupsCell", for: indexPath) as! UserGroupsCell
+        var group = GroupsItem()
         
         switch indexPath.section {
         case 0:
-            let url = isFiltered() ? localFilterGroupsArray[indexPath.row].photo100 : userGroupsArray[indexPath.row].photo100
-            let name = isFiltered() ? localFilterGroupsArray[indexPath.row].name : userGroupsArray[indexPath.row].name
-            
-            cell.iconGroup.downloadedFrom(link: url)
-            cell.nameGroup.text = name
+            group = isFiltered() ? localFilterGroupsArray[indexPath.row] : userGroupsArray[indexPath.row]
         default:
-            let url = globalFilterGroupsArray[indexPath.row].photo100 
-            let name = globalFilterGroupsArray[indexPath.row].name
-            
-            cell.iconGroup.downloadedFrom(link: url!)
-            cell.nameGroup.text = name
+            group = globalFilterGroupsArray[indexPath.row]
         }
+        
+        cell.configure(with: group)
         
         return cell
     }

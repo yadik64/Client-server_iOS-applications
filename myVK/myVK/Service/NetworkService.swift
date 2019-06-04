@@ -58,8 +58,8 @@ class NetworkService {
         }
         return parameters
     }
-    
-    public static func loadingData<T: Codable>(for requestPath: URLRequestPath, userId: String = session.id, completion: @escaping(T) -> Void) {
+    //
+    public static func loadingData<T: Decodable>(for requestPath: URLRequestPath, userId: String = session.id, completion: @escaping(Swift.Result<T, Error>) -> Void) {
         let parameters = makeParameters(from: requestPath, userId: userId)
         guard let url = URL(string: baseURL + requestPath.rawValue) else { return }
         AF.request(url, method: .get, parameters: parameters).validate().responseData { (response) in
@@ -68,14 +68,14 @@ class NetworkService {
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                 let result = try decoder.decode(T.self, from: data)
-                completion(result)
+                completion(.success(result))
             } catch {
-                print(error.localizedDescription)
+                completion(.failure(error))
             }
         }
     }
     
-    public static func groupSearch(by text: String, complition: @escaping([SearchItems]) -> Void) {
+    public static func groupSearch(by text: String, complition: @escaping(Swift.Result<GroupsModel, Error>) -> Void) {
         guard text != "" else { return }
         let path = "/method/groups.search"
         let parameters: Parameters = [
@@ -90,11 +90,12 @@ class NetworkService {
             case .success(let data):
                 guard let data = data else { return }
                 let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
                 do {
-                    let result = try decoder.decode(GroupsSearchModel.self, from: data).response
-                    complition(result)
+                    let result = try decoder.decode(GroupsModel.self, from: data)
+                    complition(.success(result))
                 } catch {
-                    print(error.localizedDescription)
+                    complition(.failure(error))
                 }
             case .failure(let error):
                 print(error.localizedDescription)

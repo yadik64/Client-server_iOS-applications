@@ -37,8 +37,9 @@ class AvatarView: UIView {
 }
 
 extension AvatarView {
-    func downloadedFrom(link: String) {
-        guard let url = URL(string: link) else { return }
+    func downloadedFrom(link: String?) {
+        
+        guard let urlString = link, let url = URL(string: urlString) else { return }
         imageView.kf.setImage(with: url)
     }
 }

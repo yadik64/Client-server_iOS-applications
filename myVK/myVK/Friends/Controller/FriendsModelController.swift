@@ -17,21 +17,27 @@ class FriendsModelController {
     
     
     init() {
-        NetworkService.loadingData(for: .friends) { (friendsData: FriendsModel) in
-            self.importantFriedsArray = {
-                var returnArray = [FriendsItem]()
-                for index in 0...5 {
-                    returnArray.append(friendsData.response.items[index])
+        NetworkService.loadingData(for: .friends) { (response: Result<FriendsModel, Error>) in
+            switch response {
+            case .success(let result):
+                self.importantFriedsArray = {
+                    var returnArray = [FriendsItem]()
+                    for index in 0...5 {
+                        returnArray.append(result.response.items[index])
+                    }
+                    return returnArray
+                }()
+                self.friendsAllButImportant = result.response.items.filter{!self.importantFriedsArray.contains($0)}.sorted{
+                    return $0.lastName < $1.lastName
                 }
-                return returnArray
-            }()
-            self.friendsAllButImportant = friendsData.response.items.filter{!self.importantFriedsArray.contains($0)}.sorted{
-                return $0.lastName < $1.lastName
+                
+                self.sortFriendsAlphabetically()
+                self.sendNotifications()
+            case .failure(let error):
+                print(error)
             }
-            
-            self.sortFriendsAlphabetically()
-            self.sendNotifications()
         }
+            
     }
     
     private func sortFriendsAlphabetically() {

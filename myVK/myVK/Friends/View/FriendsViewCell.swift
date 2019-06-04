@@ -18,4 +18,10 @@ class FriendsViewCell: UITableViewCell {
         nameFriendLabel.text = nil
     }
     
+    public func configure(with friend: FriendsItem) {
+        nameFriendLabel.text = friend.firstName + " " + friend.lastName
+        avatarView.downloadedFrom(link: friend.photo100)
+        
+    }
+    
 }

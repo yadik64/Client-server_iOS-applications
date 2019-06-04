@@ -111,7 +111,7 @@ class FriendsController: UIViewController {
 
 //TODO: - Extensions
 
-extension FriendsController: UITableViewDataSource {
+extension FriendsController: UITableViewDataSource, UITableViewDelegate {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         
@@ -142,34 +142,22 @@ extension FriendsController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifire, for: indexPath) as! FriendsViewCell
-        
-        var urlString = ""
-        var name = ""
+        var friend = FriendsItem()
         
         if isFiltered() {
-            let friend = filterFriendsArray[indexPath.row]
-            
-            urlString = friend.photo100 ?? ""
-            name = friend.firstName + " " + friend.lastName
+            friend = filterFriendsArray[indexPath.row]
         } else {
             switch indexPath.section {
             case 0:
-                let friend = friendsModelController.importantFriedsArray[indexPath.row]
-                
-                urlString = friend.photo100 ?? ""
-                name = friend.firstName  + " " + friend.lastName
-                
+                friend = friendsModelController.importantFriedsArray[indexPath.row]
             default:
                 let key = friendsModelController.sectionName[indexPath.section - numberOfSectionImportantFrieds]
-                guard let friend = friendsModelController.friendsDictionary[key]?[indexPath.row] else { break }
-                
-                urlString = friend.photo100 ?? ""
-                name = friend.firstName + " " + friend.lastName
+                guard let friendFromDictionary = friendsModelController.friendsDictionary[key]?[indexPath.row] else { break }
+                friend = friendFromDictionary
             }
         }
         
-        cell.avatarView.downloadedFrom(link: urlString)
-        cell.nameFriendLabel.text = name
+        cell.configure(with: friend)
         
         return cell
     }
@@ -187,7 +175,6 @@ extension FriendsController: UITableViewDataSource {
             }
         }
     }
-    
 }
 
 extension FriendsController: UISearchResultsUpdating {

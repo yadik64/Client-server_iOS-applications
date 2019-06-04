@@ -17,4 +17,9 @@ class UserGroupsCell: UITableViewCell {
         iconGroup.image = nil
         nameGroup.text = nil
     }
+    
+    public func configure(with group: GroupsItem) {
+        nameGroup.text = group.name
+        iconGroup.downloadedFrom(link: group.photo100)
+    }
 }

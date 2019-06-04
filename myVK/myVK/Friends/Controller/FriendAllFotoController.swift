@@ -17,16 +17,20 @@ class FriendAllFotoController: UIViewController {
     var photoData = [PhotoItem]()
     var friendData: FriendsModel?
     let segueIdentifier = "PhotoViewerSegue"
-    let photosService = PhotosService()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         guard let id = userId else { return }
-        print(id)
-        photosService.loadPhotosData(userId: id) { (responseArray) in
-            self.photoData = responseArray.items
-            self.collectionView.reloadData()
+
+        NetworkService.loadingData(for: .friendPhotos, userId: String(describing: id)) { (response: Result<PhotoModel, Error>) in
+            switch response {
+            case .success(let result):
+                self.photoData = result.response.items
+                self.collectionView.reloadData()
+            case .failure(let error):
+                print(error)
+            }
         }
     }
     
