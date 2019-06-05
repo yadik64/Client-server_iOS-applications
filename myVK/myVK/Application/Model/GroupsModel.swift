@@ -19,11 +19,17 @@ class GroupsResponse: Decodable {
 }
 
 @objcMembers class GroupsItem: Object, Decodable {
+    dynamic var id = 0
     dynamic var name = ""
     dynamic var photo100 = ""
     
-    convenience init(name: String, photo100: String) {
+    override static func primaryKey() -> String? {
+        return "id"
+    }
+    
+    convenience init(id: Int, name: String, photo100: String) {
         self.init()
+        self.id = id
         self.name = name
         self.photo100 = photo100
     }

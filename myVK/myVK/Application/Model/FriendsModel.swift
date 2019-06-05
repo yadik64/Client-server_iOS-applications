@@ -27,6 +27,10 @@ class FriendsResponse: Codable {
     dynamic var isClosed: Bool?
     dynamic var online: Int? = nil
     
+    override static func primaryKey() -> String? {
+        return "id"
+    }
+    
     convenience init(id: Int, firsName: String, lastName: String, photo100: String?, isClosed: Bool?, online: Int ) {
         self.init()
         self.id = id

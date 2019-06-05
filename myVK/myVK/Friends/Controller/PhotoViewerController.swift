@@ -8,10 +8,12 @@
 
 import UIKit
 import Kingfisher
+import RealmSwift
 
 class PhotoViewerController: UIViewController  {
     
-    var friendFoto: [PhotoItem]?
+    var friendFoto: Results<PhotoItem>!
+    
     var startFotoIndex = 0
     var start = true
     
@@ -34,7 +36,7 @@ extension PhotoViewerController: UICollectionViewDataSource, UICollectionViewDel
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        guard let number = friendFoto?.count else { return 1}
+        let number = friendFoto.count
         return number
     }
     
@@ -48,8 +50,8 @@ extension PhotoViewerController: UICollectionViewDataSource, UICollectionViewDel
             collectionView.scrollToItem(at: IndexPath(item: startFotoIndex, section: 0), at: UICollectionView.ScrollPosition.centeredHorizontally, animated: false)
             start = false
         }
-        guard let urlString = friendFoto?[indexPath.row].maxSizePhotoUrl,
-              let url = URL(string: urlString) else { return cell }
+        let urlString = friendFoto[indexPath.row].maxSizePhotoUrl
+        guard let url = URL(string: urlString) else { return cell }
         cell.photoImage.kf.setImage(with: url)
         
         return cell

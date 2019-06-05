@@ -8,13 +8,16 @@
 
 import UIKit
 import Kingfisher
+import RealmSwift
 
 class FriendAllFotoController: UIViewController {
     
     @IBOutlet weak var collectionView: UICollectionView!
     
     var userId: Int?
-    var photoData = [PhotoItem]()
+    let realmConfig = Realm.Configuration(deleteRealmIfMigrationNeeded: true)
+    lazy var realm = try! Realm(configuration: realmConfig)
+    lazy var photoData: Results<PhotoItem> = { self.realm.objects(PhotoItem.self).filter("ownerId = %@", self.userId!) }()
     var friendData: FriendsModel?
     let segueIdentifier = "PhotoViewerSegue"
     
@@ -23,10 +26,19 @@ class FriendAllFotoController: UIViewController {
         
         guard let id = userId else { return }
 
-        NetworkService.loadingData(for: .friendPhotos, userId: String(describing: id)) { (response: Result<PhotoModel, Error>) in
+        NetworkService.loadingData(for: .friendPhotos, userId: String(describing: id)) { [weak self] (response: Result<PhotoModel, Error>) in
+            guard let self = self else { return }
             switch response {
             case .success(let result):
-                self.photoData = result.response.items
+                do {
+                    let config = Realm.Configuration(deleteRealmIfMigrationNeeded: true)
+                    let realm = try Realm(configuration: config)
+                    try realm.write {
+                        realm.add(result.response.items, update: true)
+                    }
+                } catch {
+                    print(error)
+                }
                 self.collectionView.reloadData()
             case .failure(let error):
                 print(error)
@@ -42,7 +54,7 @@ class FriendAllFotoController: UIViewController {
         let photoViewerController = segue.destination as! PhotoViewerController
         
         photoViewerController.startFotoIndex = indexPath[0].row
-        photoViewerController.friendFoto = photoData
+        photoViewerController.friendFoto = photoData.filter("ownerId = %@", self.userId!)
     }
     
 }

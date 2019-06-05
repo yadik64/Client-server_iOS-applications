@@ -7,13 +7,18 @@
 //
 
 import UIKit
+import RealmSwift
 
 class UserGroupsController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
+    
     let searchController = UISearchController(searchResultsController: nil)
-    var userGroupsArray = [GroupsItem]()
+    let realmConfig = Realm.Configuration(deleteRealmIfMigrationNeeded: true)
+    lazy var realm = try! Realm(configuration: realmConfig)
+    
+    lazy var userGroupsArray: Results<GroupsItem> = { self.realm.objects(GroupsItem.self)}()
     
     var localFilterGroupsArray = [GroupsItem]()
     var globalFilterGroupsArray = [GroupsItem]()
@@ -22,10 +27,18 @@ class UserGroupsController: UIViewController {
         super.viewDidLoad()
         
         DispatchQueue.main.async {
-            NetworkService.loadingData(for: .groups, completion: { (response: Result<GroupsModel, Error>) in
+            NetworkService.loadingData(for: .groups, completion: { [weak self](response: Result<GroupsModel, Error>) in
+                guard let self = self else { return }
                 switch response {
                 case .success(let result):
-                    self.userGroupsArray = result.response.items
+                    do {
+                        self.realm.beginWrite()
+                        self.realm.add(result.response.items, update: true)
+                        try self.realm.commitWrite()
+                        print(self.realm.configuration.fileURL!)
+                    } catch {
+                        print(error)
+                    }
                     self.tableView.reloadData()
                     self.setupSearchController()
                 case .failure(let error):
