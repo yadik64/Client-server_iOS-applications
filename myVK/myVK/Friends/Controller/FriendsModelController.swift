@@ -7,9 +7,13 @@
 //
 
 import Foundation
+import RealmSwift
 
 class FriendsModelController {
     
+    let realmConfigure = Realm.Configuration(deleteRealmIfMigrationNeeded: true)
+    lazy var realm = try! Realm(configuration: self.realmConfigure)
+    lazy var allFriendsArray: Results<FriendsItem> = { self.realm.objects(FriendsItem.self) }()
     var importantFriedsArray = [FriendsItem]()
     var friendsAllButImportant = [FriendsItem]()
     var friendsDictionary = [String: [FriendsItem]]()
@@ -20,14 +24,21 @@ class FriendsModelController {
         NetworkService.loadingData(for: .friends) { (response: Result<FriendsModel, Error>) in
             switch response {
             case .success(let result):
+                do {
+                    try self.realm.write {
+                        self.realm.add(result.response.items, update: true)
+                    }
+                } catch {
+                    print(error)
+                }
                 self.importantFriedsArray = {
                     var returnArray = [FriendsItem]()
                     for index in 0...5 {
-                        returnArray.append(result.response.items[index])
+                        returnArray.append(self.allFriendsArray[index])
                     }
                     return returnArray
                 }()
-                self.friendsAllButImportant = result.response.items.filter{!self.importantFriedsArray.contains($0)}.sorted{
+                self.friendsAllButImportant = self.allFriendsArray.filter{!self.importantFriedsArray.contains($0)}.sorted{
                     return $0.lastName < $1.lastName
                 }
                 
@@ -37,7 +48,6 @@ class FriendsModelController {
                 print(error)
             }
         }
-            
     }
     
     private func sortFriendsAlphabetically() {
