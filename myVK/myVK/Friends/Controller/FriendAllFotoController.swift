@@ -13,37 +13,54 @@ import RealmSwift
 class FriendAllFotoController: UIViewController {
     
     @IBOutlet weak var collectionView: UICollectionView!
-    
-    var userId: Int?
-    let realmConfig = Realm.Configuration(deleteRealmIfMigrationNeeded: true)
-    lazy var realm = try! Realm(configuration: realmConfig)
-    lazy var photoData: Results<PhotoItem> = { self.realm.objects(PhotoItem.self).filter("ownerId = %@", self.userId!) }()
+    let dbManager = DBManager.shared
+    var notificationToken: NotificationToken?
+    lazy var photoData: Results<PhotoItem> = { self.dbManager.getDataFromDb().filter("ownerId = %@", self.userId) }()
+    var userId: Int = 0
     var friendData: FriendsModel?
     let segueIdentifier = "PhotoViewerSegue"
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        guard let id = userId else { return }
-
-        NetworkService.loadingData(for: .friendPhotos, userId: String(describing: id)) { [weak self] (response: Result<PhotoModel, Error>) in
+        notificationToken = photoData._observe({ [weak self] (changes) in
+            guard let self = self else { return }
+            
+            switch changes {
+            case .initial(_):
+                self.collectionView.reloadData()
+            case .update(_, let deletions, let insertions, let modifications):
+                self.collectionView.performBatchUpdates({
+                    self.collectionView.deleteItems(at: deletions.map {IndexPath(row: $0, section: 0)})
+                    self.collectionView.insertItems(at: insertions.map {IndexPath(row: $0, section: 0)})
+                    self.collectionView.reloadItems(at: modifications.map {IndexPath(row: $0, section: 0)})
+                }, completion: nil)
+            case .error(let error):
+                print(error)
+            }
+        })
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        
+        NetworkService.loadingData(for: .friendPhotos, userId: String(describing: userId)) { [weak self] (response: Result<PhotoModel, Error>) in
             guard let self = self else { return }
             switch response {
             case .success(let result):
                 do {
-                    let config = Realm.Configuration(deleteRealmIfMigrationNeeded: true)
-                    let realm = try Realm(configuration: config)
-                    try realm.write {
-                        realm.add(result.response.items, update: true)
-                    }
+                    try self.dbManager.addData(result.response.items)
                 } catch {
                     print(error)
                 }
-                self.collectionView.reloadData()
             case .failure(let error):
                 print(error)
             }
         }
+    }
+    
+    deinit {
+        notificationToken?.invalidate()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -54,7 +71,7 @@ class FriendAllFotoController: UIViewController {
         let photoViewerController = segue.destination as! PhotoViewerController
         
         photoViewerController.startFotoIndex = indexPath[0].row
-        photoViewerController.friendFoto = photoData.filter("ownerId = %@", self.userId!)
+        photoViewerController.friendFoto = photoData.filter("ownerId = %@", self.userId)
     }
     
 }

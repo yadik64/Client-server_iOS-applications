@@ -11,9 +11,8 @@ import RealmSwift
 
 class FriendsModelController {
     
-    let realmConfigure = Realm.Configuration(deleteRealmIfMigrationNeeded: true)
-    lazy var realm = try! Realm(configuration: self.realmConfigure)
-    lazy var allFriendsArray: Results<FriendsItem> = { self.realm.objects(FriendsItem.self) }()
+    let dbManager = DBManager.shared
+    lazy var allFriendsArray: Results<FriendsItem> = { self.dbManager.getDataFromDb() }()
     var importantFriedsArray = [FriendsItem]()
     var friendsAllButImportant = [FriendsItem]()
     var friendsDictionary = [String: [FriendsItem]]()
@@ -25,9 +24,7 @@ class FriendsModelController {
             switch response {
             case .success(let result):
                 do {
-                    try self.realm.write {
-                        self.realm.add(result.response.items, update: true)
-                    }
+                    try self.dbManager.addData(result.response.items)
                 } catch {
                     print(error)
                 }

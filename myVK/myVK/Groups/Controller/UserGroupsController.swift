@@ -13,40 +13,55 @@ class UserGroupsController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
-    
     let searchController = UISearchController(searchResultsController: nil)
-    let realmConfig = Realm.Configuration(deleteRealmIfMigrationNeeded: true)
-    lazy var realm = try! Realm(configuration: realmConfig)
-    
-    lazy var userGroupsArray: Results<GroupsItem> = { self.realm.objects(GroupsItem.self)}()
-    
+    let dbManager = DBManager.shared
+    var notificationToken: NotificationToken?
+    lazy var userGroupsArray: Results<GroupsItem> = { self.dbManager.getDataFromDb()}()
     var localFilterGroupsArray = [GroupsItem]()
     var globalFilterGroupsArray = [GroupsItem]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        DispatchQueue.main.async {
-            NetworkService.loadingData(for: .groups, completion: { [weak self](response: Result<GroupsModel, Error>) in
-                guard let self = self else { return }
-                switch response {
-                case .success(let result):
-                    do {
-                        self.realm.beginWrite()
-                        self.realm.add(result.response.items, update: true)
-                        try self.realm.commitWrite()
-                        print(self.realm.configuration.fileURL!)
-                    } catch {
-                        print(error)
-                    }
-                    self.tableView.reloadData()
-                    self.setupSearchController()
-                case .failure(let error):
+        notificationToken = userGroupsArray._observe({ [weak self](changes) in
+            guard let self = self else { return }
+            
+            switch changes {
+            case .initial(_):
+                self.tableView.reloadData()
+            case .update(_, let deletions, let insertions, let modifications):
+                self.tableView.beginUpdates()
+                self.tableView.deleteRows(at: deletions.map {IndexPath(row: $0, section: 0)}, with: .automatic)
+                self.tableView.insertRows(at: insertions.map {IndexPath(row: $0, section: 0)}, with: .automatic)
+                self.tableView.reloadRows(at: modifications.map {IndexPath(row: $0, section: 0)}, with: .automatic)
+                self.tableView.endUpdates()
+            case .error(let error):
+                print(error.localizedDescription)
+            }
+        })
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        
+        NetworkService.loadingData(for: .groups, completion: { [weak self](response: Result<GroupsModel, Error>) in
+            guard let self = self else { return }
+            switch response {
+            case .success(let result):
+                do {
+                    try self.dbManager.addData(result.response.items)
+                } catch {
                     print(error)
                 }
-                
-            })
-        }
+                self.setupSearchController()
+            case .failure(let error):
+                print(error)
+            }
+        })
+    }
+    
+    deinit {
+        notificationToken?.invalidate()
     }
     
     //TODO: - SearchController Methods

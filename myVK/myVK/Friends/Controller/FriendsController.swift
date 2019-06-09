@@ -101,7 +101,7 @@ class FriendsController: UIViewController {
                 friendAllFotoController.userId = friendsModelController.importantFriedsArray[indexPath.row].id
             default:
                 let key = friendsModelController.sectionName[indexPath.section - 1]
-                friendAllFotoController.userId = friendsModelController.friendsDictionary[key]?[indexPath.row].id
+                friendAllFotoController.userId = friendsModelController.friendsDictionary[key]?[indexPath.row].id ?? 0
             }
         }
         

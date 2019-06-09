@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		105F465A22A94D6900838F04 /* DBManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 105F465922A94D6900838F04 /* DBManager.swift */; };
 		1075E723225205660018FF43 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1075E722225205660018FF43 /* AppDelegate.swift */; };
 		1075E728225205660018FF43 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1075E726225205660018FF43 /* Main.storyboard */; };
 		1075E72A225205680018FF43 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1075E729225205680018FF43 /* Assets.xcassets */; };
@@ -35,6 +36,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		105F465922A94D6900838F04 /* DBManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBManager.swift; sourceTree = "<group>"; };
 		1075E71F225205660018FF43 /* myVK.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = myVK.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1075E722225205660018FF43 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1075E727225205660018FF43 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -243,6 +245,7 @@
 			children = (
 				10E4535C229335C90063E972 /* NetworkService.swift */,
 				108CEAE4228FFA340089C587 /* Session.swift */,
+				105F465922A94D6900838F04 /* DBManager.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -405,6 +408,7 @@
 				107F8B8A225D3EBF005AACAE /* CharControl.swift in Sources */,
 				10902D272253BC7400C19782 /* ZoomInOutCollectionViewLayout.swift in Sources */,
 				10902D172253448300C19782 /* FriendsViewCell.swift in Sources */,
+				105F465A22A94D6900838F04 /* DBManager.swift in Sources */,
 				10E453522292D97F0063E972 /* VKAthorizationController.swift in Sources */,
 				10902D232253874D00C19782 /* PhotoViewerController.swift in Sources */,
 				10902D2122534E3C00C19782 /* FriendAllFotoController.swift in Sources */,

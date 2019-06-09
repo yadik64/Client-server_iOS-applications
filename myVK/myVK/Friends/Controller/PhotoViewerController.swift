@@ -19,16 +19,6 @@ class PhotoViewerController: UIViewController  {
     
     @IBOutlet weak var collectionView: UICollectionView!
     
-    override func viewDidLoad() {
-        
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-        
-        navigationController?.title = "hi"
-        
-    }
     
 }
 
