@@ -13,4 +13,15 @@ class FriendsViewCell: UITableViewCell {
     @IBOutlet weak var avatarView: AvatarView!
     @IBOutlet weak var nameFriendLabel: UILabel!
     
+    override func prepareForReuse() {
+        avatarView.image = nil
+        nameFriendLabel.text = nil
+    }
+    
+    public func configure(with friend: FriendsItem) {
+        nameFriendLabel.text = friend.firstName + " " + friend.lastName
+        avatarView.downloadedFrom(link: friend.photo100)
+        
+    }
+    
 }
